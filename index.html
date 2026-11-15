@@ -83,6 +83,10 @@ small{display:block;color:var(--muted);font-size:13px}
 .stat span{display:block;font-size:13px;color:var(--muted)}
 .stat b{display:block;margin-top:6px;font-size:20px;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
 .stat.wide{grid-column:1/-1}
+.stat.od{background:var(--bad-bg);box-shadow:none}
+.stat.od span{color:var(--bad-ink);font-weight:600}
+.stat.od b{color:var(--bad-ink);font-size:26px}
+.stat.od small{color:var(--bad-ink);opacity:.85;margin-top:4px}
 .inst .ib{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}
 .inst .ic{min-width:0}
 .inst .ic+.ic{padding-left:18px;border-left:1px solid var(--line)}
@@ -244,7 +248,9 @@ function stats(rows){
     var ym=open[0].date.slice(0,7);
     st.up={ym:ym,due:ym+'-'+pad(S.day),amt:r2(sum(open.filter(function(r){return r.date.slice(0,7)===ym;}),function(r){return r.bal;}))};
   }
-  st.overdue=open.filter(function(r){return r.date<t;}).length;
+  var late=open.filter(function(r){return r.date<t;});
+  st.overdue=late.length;
+  st.overdueAmt=r2(sum(late,function(r){return r.bal;}));
   st.credit=st.up?r2(sum(rows.filter(function(r){return r.date.slice(0,7)>st.up.ym;}),function(r){return r.alloc;})):0;
   var allocT=sum(rows,function(r){return r.alloc;});
   st.unmatched=r2(sum(S.pays,function(p){return +p.amount||0;})-allocT);
@@ -255,7 +261,7 @@ function stats(rows){
   st.nOpen=open.length; st.nDone=rows.length-open.length;
   st.lvl='info';
   if(!st.up){st.lvl='ok';st.msg=st.unmatched>0.005?'All instalments are paid. There is an overpayment of '+rm(st.unmatched)+' that has not been matched.':'All instalments are paid.';}
-  else if(st.overdue>0){st.lvl='warn';st.msg=st.overdue+(st.overdue===1?' instalment is':' instalments are')+' overdue. Check the Schedule.';}
+  else if(st.overdue>0){st.lvl='warn';st.msg=rm(st.overdueAmt)+' is overdue ('+st.overdue+(st.overdue===1?' instalment':' instalments')+'). Check the Schedule.';}
   else if(st.credit>0.005)st.msg='Extra credit of '+rm(st.credit)+' will be deducted from the next instalments.';
   else if(st.partial>0)st.msg='There is a partial payment. Check the balance in the Schedule.';
   else st.msg='Make sure payment is made on or before day '+S.day+' of the month.';
@@ -276,7 +282,9 @@ function vDash(rows,st){
   else h+='<span class="pill">Done</span></div><div class="big num">'+rm(0)+'</div><div class="hs">No outstanding balance</div>';
   h+='<div class="hbar" aria-hidden="true"><i style="width:'+pct+'%"></i></div><div class="hf num"><span>Paid '+rm(st.paid)+'</span><span>of '+rm(st.due)+'</span></div></section>';
   h+='<div class="note n-'+st.lvl+'" role="status"><i></i><p>'+esc(st.msg)+'</p></div>';
-  h+='<h2>Summary</h2><div class="grid">'+stat('Paid so far',rm(st.paid))+stat('Remaining balance',rm(st.bal))+stat('Total to pay',rm(st.due))+stat('Total purchases',rm(st.buy));
+  h+='<h2>Summary</h2><div class="grid">';
+  if(st.overdue>0)h+='<div class="stat wide od"><span>Overdue</span><b class="num">'+rm(st.overdueAmt)+'</b><small>'+st.overdue+(st.overdue===1?' instalment past its due date':' instalments past their due dates')+'</small></div>';
+  h+=stat('Paid so far',rm(st.paid))+stat('Remaining balance',rm(st.bal))+stat('Total to pay',rm(st.due))+stat('Total purchases',rm(st.buy));
   var ip=(st.nOpen+st.nDone)>0?Math.round(st.nDone/(st.nOpen+st.nDone)*100):0;
   h+='<div class="stat wide inst"><span>Instalments</span><div class="ib"><div class="ic"><b class="num">'+st.nOpen+'</b><small>unpaid</small></div><div class="ic done"><b class="num">'+st.nDone+'</b><small>paid</small></div></div><div class="seg" aria-hidden="true"><i style="width:'+ip+'%"></i></div></div>';
   if(st.credit>0.005)h+=stat('Early payment credit',rm(st.credit),'wide');
