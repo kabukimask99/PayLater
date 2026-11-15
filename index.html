@@ -83,8 +83,15 @@ small{display:block;color:var(--muted);font-size:13px}
 .stat span{display:block;font-size:13px;color:var(--muted)}
 .stat b{display:block;margin-top:6px;font-size:20px;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
 .stat.wide{grid-column:1/-1}
-.split{display:flex;gap:24px;margin-top:6px}
-.split b{margin:0;font-size:22px}
+.inst .ib{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}
+.inst .ic{min-width:0}
+.inst .ic+.ic{padding-left:18px;border-left:1px solid var(--line)}
+.inst .ic b{display:block;margin:0;font-size:30px;line-height:1;font-weight:800;letter-spacing:-.03em}
+.inst .ic small{display:flex;align-items:center;gap:7px;margin-top:8px}
+.inst .ic small::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:.55}
+.inst .ic.done small::before{background:var(--ok-ink);opacity:1}
+.inst .seg{height:6px;border-radius:3px;background:var(--ring-track);margin-top:16px;overflow:hidden}
+.inst .seg i{display:block;height:100%;border-radius:3px;background:var(--ok-ink)}
 .foot{margin:20px 4px 0;font-size:12px;color:var(--muted)}
 
 .list{display:flex;flex-direction:column;gap:10px}
@@ -270,7 +277,8 @@ function vDash(rows,st){
   h+='<div class="hbar" aria-hidden="true"><i style="width:'+pct+'%"></i></div><div class="hf num"><span>Paid '+rm(st.paid)+'</span><span>of '+rm(st.due)+'</span></div></section>';
   h+='<div class="note n-'+st.lvl+'" role="status"><i></i><p>'+esc(st.msg)+'</p></div>';
   h+='<h2>Summary</h2><div class="grid">'+stat('Paid so far',rm(st.paid))+stat('Remaining balance',rm(st.bal))+stat('Total to pay',rm(st.due))+stat('Total purchases',rm(st.buy));
-  h+='<div class="stat wide"><span>Instalments</span><div class="split"><div><b class="num">'+st.nOpen+'</b><small>unpaid</small></div><div><b class="num">'+st.nDone+'</b><small>paid</small></div></div></div>';
+  var ip=(st.nOpen+st.nDone)>0?Math.round(st.nDone/(st.nOpen+st.nDone)*100):0;
+  h+='<div class="stat wide inst"><span>Instalments</span><div class="ib"><div class="ic"><b class="num">'+st.nOpen+'</b><small>unpaid</small></div><div class="ic done"><b class="num">'+st.nDone+'</b><small>paid</small></div></div><div class="seg" aria-hidden="true"><i style="width:'+ip+'%"></i></div></div>';
   if(st.credit>0.005)h+=stat('Early payment credit',rm(st.credit),'wide');
   if(st.unmatched>0.005)h+=stat('Unmatched overpayment',rm(st.unmatched),'wide');
   h+='</div><p class="foot">The upcoming bill is the balance for the earliest month that is not yet settled. Record each payment in the Payments tab and this view updates by itself.</p>';
