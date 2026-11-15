@@ -115,6 +115,10 @@ h2{margin:22px 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercas
 .panel h3{margin:0 0 14px;font-size:18px}
 label{display:block;margin:12px 0 4px;font-size:13px;font-weight:600;color:var(--muted)}
 input,select,textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:16px}
+input[type="date"]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;width:100%;height:46px;text-align:left}
+input[type="date"]::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
+input[type="date"]::-webkit-datetime-edit{padding:0}
+.two>div{min-width:0}
 textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
